@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, reverse
+from django.http import HttpResponse
 
 DATA = {
     'omlet': {
@@ -28,3 +29,23 @@ DATA = {
 #     'ингредиент2': количество2,
 #   }
 # }
+
+def main_page(request):
+    links={
+        'Рецепт омлета': reverse('omlet'),
+        'Рецепт пасты': reverse('pasta'),
+        'Рецепт бутерброда': reverse('buter')
+    }
+    return HttpResponse("<br>".join(f"<a href='{link}'>{name}</a>" for name, link in links.items()))
+    # return HttpResponse('Рецепты омлета, пасты и бутерброда')
+
+
+def recipes(request):  
+    meal = DATA[request.path.replace('/', '')]
+    servings = int(request.GET.get('servings', 1))
+    recipe = {key: value * servings for key, value in meal.items()}
+    context = {
+      'recipe': recipe
+    }
+
+    return render(request, 'calculator/index.html', context)
